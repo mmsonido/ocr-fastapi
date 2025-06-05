@@ -144,7 +144,7 @@
           }
           const data2 = await res2.json();
           if (data2.url) {
-            bucketUrlHtml = `<div style=\"border:1px solid #007bff;padding:0.7rem 1rem;background:#eaf4ff;border-radius:6px;word-break:break-all;\">Archivo subido a GCP: <a href=\"${data2.url}\" target=\"_blank\">${data2.url}</a></div>`;
+            bucketUrlHtml = `<div style=\"border:1px solid #007bff;padding:0.7rem 1rem;background:#eaf4ff;border-radius:6px;word-break:break-all;\">File uploaded to GCP: <a href=\"${data2.url}\" target=\"_blank\">${data2.url}</a></div>`;
           } else {
             bucketUrlHtml = `<div style=\"border:1px solid #007bff;padding:0.7rem 1rem;background:#eaf4ff;border-radius:6px;\">(No URL)</div>`;
           }
