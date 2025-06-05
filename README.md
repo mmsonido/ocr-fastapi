@@ -26,6 +26,7 @@ This project implements a robust backend and simple frontend for extracting text
 - [Testing with Example PDFs](#testing-with-example-pdfs)
 - [Extending the Project](#extending-the-project)
 - [License](#license)
+- [Pydantic Models](#pydantic-models)
 
 ---
 
@@ -70,6 +71,26 @@ This project implements a robust backend and simple frontend for extracting text
 - **Cloud:** Google Cloud Storage, Google Cloud Run
 - **Frontend:** HTML, CSS, JavaScript (no frameworks)
 - **Containerization:** Docker
+
+---
+
+## Pydantic Models
+
+This project uses [Pydantic](https://docs.pydantic.dev/) for data validation and serialization in FastAPI endpoints. Pydantic models (subclassed from `BaseModel`) are used to define the structure of request and response data, ensuring type safety and automatic documentation.
+
+For example, response models like `ExtractTextResponse` and `ExtractTextToBucketResponse` are defined using Pydantic and used in API endpoints to validate and serialize the output:
+
+```python
+from pydantic import BaseModel
+
+class ExtractTextResponse(BaseModel):
+    text: str
+
+class ExtractTextToBucketResponse(BaseModel):
+    url: str
+```
+
+These models are referenced in the FastAPI routes using the `response_model` parameter, which ensures that responses conform to the specified schema and are automatically documented in the OpenAPI docs.
 
 ---
 
