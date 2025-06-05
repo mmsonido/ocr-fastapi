@@ -121,6 +121,27 @@ GOOGLE_APPLICATION_CREDENTIALS=keys/your-service-account.json
 
 ---
 
+## Creating Google Cloud Service Account Keys
+
+To enable the backend to upload files to your Google Cloud Storage bucket, you need a service account key with the appropriate permissions:
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
+2. Navigate to **IAM & Admin > Service Accounts**.
+3. Click **Create Service Account**.
+   - Give it a name (e.g., `ocr-fastapi-service-account`).
+   - Click **Create and Continue**.
+4. Assign the role **Storage Object Admin** (or a more restrictive role if desired).
+   - Click **Continue** and then **Done**.
+5. In the list, click your new service account, then go to the **Keys** tab.
+6. Click **Add Key > Create new key**.
+   - Select **JSON** and click **Create**.
+   - Download the JSON file and place it in your project (e.g., in the `keys/` directory).
+7. Set the `GOOGLE_APPLICATION_CREDENTIALS` variable in your `.env` file to the path of this JSON file (e.g., `keys/your-service-account.json`).
+
+**Important:** Never commit your service account key to version control. The `.gitignore` is already configured to protect files in the `keys/` directory.
+
+---
+
 ## Running Locally
 
 1. **Install Tesseract and Poppler**
