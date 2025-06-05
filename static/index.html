@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>OCR PDF Uploader</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; }
+    #output { white-space: pre-wrap; border: 1px solid #ccc; padding: 1rem; }
+    #spinner {
+      display: none;
+      margin: 1rem 0;
+      width: 40px;
+      height: 40px;
+      border: 5px solid #ccc;
+      border-top: 5px solid #007bff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .action-checkboxes {
+      display: flex;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .action-checkbox-label {
+      flex: 1;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      user-select: none;
+      font-size: 1.1rem;
+      background: #fafafa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .action-checkbox:checked + .action-checkbox-label {
+      border-color: #007bff;
+      box-shadow: 0 0 8px #007bff33;
+      background: #eaf4ff;
+    }
+    .action-checkbox {
+      display: none;
+    }
+    .file-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    #pdf-file {
+      display: none;
+    }
+    .custom-file-label {
+      display: inline-block;
+      padding: 0.5rem 1.2rem;
+      background: #007bff;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.2s;
+    }
+    .custom-file-label:hover {
+      background: #0056b3;
+    }
+    #file-name {
+      font-size: 1rem;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>Upload PDF for OCR</h1>
+  <form id="upload-form">
+    <div class="file-input-wrapper">
+      <input type="file" id="pdf-file" accept="application/pdf" required />
+      <label for="pdf-file" class="custom-file-label">Choose PDF file</label>
+      <span id="file-name">No file chosen</span>
+    </div>
+    <div class="action-checkboxes">
+      <input type="checkbox" class="action-checkbox" id="cb-print" value="extract" checked />
+      <label for="cb-print" class="action-checkbox-label">Print</label>
+      <input type="checkbox" class="action-checkbox" id="cb-bucket" value="bucket" />
+      <label for="cb-bucket" class="action-checkbox-label">Upload to bucket</label>
+    </div>
+    <button type="submit">Process</button>
+  </form>
+  <h3 id="output-label">Result:</h3>
+  <div id="spinner"></div>
+  <pre id="output"></pre>
+  <div id="bucket-link" style="margin-top:1rem;"></div>
+
+  <script>
+    const form = document.getElementById('upload-form');
+    const outputLabel = document.getElementById('output-label');
+    const fileInput = document.getElementById('pdf-file');
+    const fileNameSpan = document.getElementById('file-name');
+    fileInput.addEventListener('change', () => {
+      fileNameSpan.textContent = fileInput.files[0] ? fileInput.files[0].name : 'No file chosen';
+    });
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const file = fileInput.files[0];
+      if (!file) return;
+      const doPrint = document.getElementById('cb-print').checked;
+      const doBucket = document.getElementById('cb-bucket').checked;
+      if (!doPrint && !doBucket) {
+        document.getElementById('output').textContent = 'Please select at least one action.';
+        return;
+      }
+      const formData = new FormData();
+      formData.append('file', file);
+      const spinner = document.getElementById('spinner');
+      spinner.style.display = 'inline-block';
+      document.getElementById('output').textContent = '';
+      let extractedText = '';
+      let bucketUrlHtml = '';
+      try {
+        if (doPrint) {
+          const res = await fetch('/extract-text', { method: 'POST', body: formData });
+          if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(errorText);
+          }
+          const data = await res.json();
+          extractedText = data.text || '(No text)';
+        }
+        if (doBucket) {
+          const formData2 = new FormData();
+          formData2.append('file', file);
+          formData2.append('filename', file.name.replace(/\.pdf$/i, '.txt'));
+          const res2 = await fetch('/extract-text-to-bucket', { method: 'POST', body: formData2 });
+          if (!res2.ok) {
+            const errorText = await res2.text();
+            throw new Error(errorText);
+          }
+          const data2 = await res2.json();
+          if (data2.url) {
+            bucketUrlHtml = `<div style=\"border:1px solid #007bff;padding:0.7rem 1rem;background:#eaf4ff;border-radius:6px;word-break:break-all;\">Archivo subido a GCP: <a href=\"${data2.url}\" target=\"_blank\">${data2.url}</a></div>`;
+          } else {
+            bucketUrlHtml = `<div style=\"border:1px solid #007bff;padding:0.7rem 1rem;background:#eaf4ff;border-radius:6px;\">(No URL)</div>`;
+          }
+        }
+        outputLabel.textContent = 'Result:';
+        document.getElementById('output').textContent = extractedText;
+        document.getElementById('bucket-link').innerHTML = bucketUrlHtml;
+        spinner.style.display = 'none';
+      } catch (err) {
+        document.getElementById('output').textContent = 'Error: ' + err.message;
+        spinner.style.display = 'none';
+      }
+    };
+  </script>
+</body>
+</html>
