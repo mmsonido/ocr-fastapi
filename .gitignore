@@ -1,0 +1,7 @@
+.env
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+keys/*.json
+#ocr-fastapi-461917-5c33f7a097a8.json
