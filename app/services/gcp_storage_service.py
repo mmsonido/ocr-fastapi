@@ -36,7 +36,6 @@ def upload_to_bucket(client: storage.Client, bucket_name: str, blob_name: str, t
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(blob_name)
     blob.upload_from_string(text, content_type="text/plain")
-    
     logging.debug(f"Upload to GCP bucket complete: {bucket_name}/{blob_name}")
     return blob.public_url
 
