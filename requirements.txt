@@ -1,0 +1,12 @@
+fastapi==0.110.0
+uvicorn==0.29.0
+pdf2image==1.17.0
+pytesseract==0.3.10
+Pillow==10.3.0
+python-multipart==0.0.9
+#Tesseract-OCR
+#Poppler
+google-cloud-storage==2.16.0
+dotenv
+google-cloud-run==0.2.0
+# concurrent.futures is part of the Python standard library (Python 3.2+), no need to add it separately

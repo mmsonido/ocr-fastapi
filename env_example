@@ -1,0 +1,6 @@
+# Example environment variables for ocr-fastapi
+DOCKER_IMAGE=gcr.io/ocr-fastapi-461917/ocr-fastapi:latest
+SERVICE_NAME=ocr-fastapi-service
+REGION=us-central1
+GCP_BUCKET_NAME=your-bucket-name
+GOOGLE_APPLICATION_CREDENTIALS=path/to/credentials.json
